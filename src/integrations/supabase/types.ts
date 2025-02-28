@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      notas_fiscais: {
+        Row: {
+          contato: string
+          created_at: string | null
+          data_emissao: string
+          data_envio_mensagem: string
+          id: string
+          numero_nota: string
+          razao_social: string
+          status: Database["public"]["Enums"]["nota_status"]
+          telefone: string
+          updated_at: string | null
+        }
+        Insert: {
+          contato: string
+          created_at?: string | null
+          data_emissao: string
+          data_envio_mensagem: string
+          id?: string
+          numero_nota: string
+          razao_social: string
+          status?: Database["public"]["Enums"]["nota_status"]
+          telefone: string
+          updated_at?: string | null
+        }
+        Update: {
+          contato?: string
+          created_at?: string | null
+          data_emissao?: string
+          data_envio_mensagem?: string
+          id?: string
+          numero_nota?: string
+          razao_social?: string
+          status?: Database["public"]["Enums"]["nota_status"]
+          telefone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +56,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      nota_status:
+        | "pendente"
+        | "atrasado"
+        | "alerta-verde"
+        | "alerta-amarelo"
+        | "alerta-vermelho"
     }
     CompositeTypes: {
       [_ in never]: never
