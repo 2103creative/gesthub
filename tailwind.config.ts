@@ -19,7 +19,7 @@ export default {
         foreground: "hsl(var(--foreground))",
       },
       fontFamily: {
-        sans: ["Quicksand", "system-ui", "sans-serif"],
+        quicksand: ["Quicksand", "system-ui", "sans-serif"],
       },
       animation: {
         fadeIn: "fadeIn 0.3s ease-in",

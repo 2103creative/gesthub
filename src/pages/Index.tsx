@@ -19,9 +19,9 @@ const MainMenu = () => {
     <Link 
       key={to}
       to={to}
-      className="block w-full p-2 md:p-4 bg-eink-lightGray hover:bg-eink-gray transition-colors duration-200 rounded-lg shadow-sm"
+      className="block w-[200px] h-[40px] leading-[40px] mx-auto bg-[#ea384c] hover:bg-red-600 transition-colors duration-200 rounded-lg shadow-sm"
     >
-      <span className="text-xs md:text-base font-medium uppercase">{label}</span>
+      <span className="text-[14px] font-bold text-white uppercase font-quicksand">{label}</span>
     </Link>
   );
 
@@ -29,11 +29,11 @@ const MainMenu = () => {
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow flex flex-col justify-center">
         <div className="max-w-[80%] w-full mx-auto px-3 py-6">
-          <h1 className="text-lg md:text-2xl font-light text-center mb-6 uppercase">
+          <h1 className="text-[18px] font-quicksand font-light text-center mb-6 uppercase">
             GestHub
           </h1>
           
-          <nav className="space-y-2.5">
+          <nav className="space-y-4">
             {menuLinks.map(renderMenuLink)}
           </nav>
         </div>
