@@ -45,21 +45,21 @@ const ScheduleCollection = () => {
         <div className="max-w-[80%] mx-auto px-3 py-6 md:py-12">
           <button 
             onClick={() => navigate('/')}
-            className="mb-6 md:mb-8 text-eink-gray hover:text-eink-black text-xs md:text-sm"
+            className="mb-6 md:mb-8 text-eink-gray hover:text-eink-black text-xs md:text-sm uppercase"
           >
-            ← Voltar
+            ← VOLTAR
           </button>
 
-          <h1 className="text-lg md:text-2xl font-light text-center mb-6">Agendar Coleta</h1>
+          <h1 className="text-lg md:text-2xl font-light text-center mb-6 uppercase">Agendar Coleta</h1>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             {[
-              { key: 'whatsapp', placeholder: 'WhatsApp (com DDD)', type: 'tel' },
-              { key: 'name', placeholder: 'Nome do Cliente', type: 'text' },
-              { key: 'city', placeholder: 'Cidade Destino', type: 'text' },
-              { key: 'volume', placeholder: 'Volume', type: 'text' },
-              { key: 'weight', placeholder: 'Peso', type: 'text' },
-              { key: 'cubicMeters', placeholder: 'Cubagem', type: 'text' }
+              { key: 'whatsapp', placeholder: 'WHATSAPP (COM DDD)', type: 'tel' },
+              { key: 'name', placeholder: 'NOME DO CLIENTE', type: 'text' },
+              { key: 'city', placeholder: 'CIDADE DESTINO', type: 'text' },
+              { key: 'volume', placeholder: 'VOLUME', type: 'text' },
+              { key: 'weight', placeholder: 'PESO', type: 'text' },
+              { key: 'cubicMeters', placeholder: 'CUBAGEM', type: 'text' }
             ].map((field) => (
               <div key={field.key}>
                 <input
@@ -67,22 +67,22 @@ const ScheduleCollection = () => {
                   placeholder={field.placeholder}
                   value={formData[field.key as keyof typeof formData]}
                   onChange={(e) => setFormData({...formData, [field.key]: e.target.value})}
-                  className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm"
+                  className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
                 />
               </div>
             ))}
 
             {status && (
-              <div className="text-center text-eink-gray text-xs md:text-sm">
+              <div className="text-center text-eink-gray text-xs md:text-sm uppercase">
                 {status}
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full p-2.5 bg-eink-black text-eink-white rounded-lg hover:bg-eink-darkGray transition-colors duration-200 text-xs md:text-sm"
+              className="w-[200px] h-[40px] p-2.5 bg-eink-black text-eink-white rounded-lg hover:bg-eink-gray transition-colors duration-200 text-xs md:text-sm uppercase font-medium font-quicksand mx-auto block"
             >
-              Enviar
+              ENVIAR
             </button>
           </form>
         </div>

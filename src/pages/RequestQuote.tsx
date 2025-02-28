@@ -54,27 +54,29 @@ const RequestQuote = () => {
         <div className="max-w-[80%] mx-auto px-3 py-6 md:py-12">
           <button 
             onClick={() => navigate('/')}
-            className="mb-6 md:mb-8 text-eink-gray hover:text-eink-black text-xs md:text-sm"
+            className="mb-6 md:mb-8 text-eink-gray hover:text-eink-black text-xs md:text-sm uppercase"
           >
-            ← Voltar
+            ← VOLTAR
           </button>
 
-          <h1 className="text-lg md:text-2xl font-light text-center mb-6">Solicitar Cotação</h1>
+          <h1 className="text-lg md:text-2xl font-light text-center mb-6 uppercase">Solicitar Cotação</h1>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <select
-              value={selectedContact}
-              onChange={(e) => setSelectedContact(e.target.value)}
-              className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm"
-            >
-              {Object.keys(CONTACTS).map((contact) => (
-                <option key={contact} value={contact}>
-                  {contact}
-                </option>
-              ))}
-            </select>
+            <div>
+              <select
+                value={selectedContact}
+                onChange={(e) => setSelectedContact(e.target.value)}
+                className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
+              >
+                {Object.keys(CONTACTS).map((contact) => (
+                  <option key={contact} value={contact}>
+                    {contact}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 max-w-[200px] mx-auto">
               {[
                 { key: 'stretchFilm', label: 'FILME STRETCH' },
                 { key: 'bubbleWrap', label: 'PLÁSTICO BOLHA' },
@@ -94,16 +96,16 @@ const RequestQuote = () => {
             </div>
 
             {status && (
-              <div className="text-center text-eink-gray text-xs md:text-sm">
+              <div className="text-center text-eink-gray text-xs md:text-sm uppercase">
                 {status}
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full p-2.5 bg-eink-black text-eink-white rounded-lg hover:bg-eink-darkGray transition-colors duration-200 text-xs md:text-sm"
+              className="w-[200px] h-[40px] p-2.5 bg-eink-black text-eink-white rounded-lg hover:bg-eink-gray transition-colors duration-200 text-xs md:text-sm uppercase font-medium font-quicksand mx-auto block"
             >
-              Enviar
+              ENVIAR
             </button>
           </form>
         </div>
