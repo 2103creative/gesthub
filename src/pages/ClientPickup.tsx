@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import type { NotaFiscal } from "../types/NotaFiscal";
+import { NotasService } from "../services/notasService";
 
 const ClientPickup = () => {
   const navigate = useNavigate();
@@ -14,10 +14,9 @@ const ClientPickup = () => {
     invoice: ''
   });
   const [status, setStatus] = useState('');
-  const [notas, setNotas] = useLocalStorage<NotaFiscal[]>("notas-fiscais", []);
-  const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.whatsapp || !formData.contato || !formData.invoice || !formData.razaoSocial) {
@@ -25,38 +24,55 @@ const ClientPickup = () => {
       return;
     }
 
-    if (enviado) {
-      toast.error("Mensagem já enviada");
+    if (enviando) {
+      toast.error("Enviando mensagem, aguarde...");
       return;
     }
 
-    const phone = formData.whatsapp.replace(/\D/g, '');
-    const message = `Olá, ${formData.contato}, tudo bem?\n\n` +
-      `Me chamo Lenoir e falo da Gplásticos.\n` +
-      `Estou entrando em contato para avisar que a sua mercadoria está pronta para coleta.\n\n` +
-      `- Nota Fiscal Nº ${formData.invoice}\n` +
-      `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
-      `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
+    try {
+      setEnviando(true);
+      
+      const phone = formData.whatsapp.replace(/\D/g, '');
+      const message = `Olá, ${formData.contato}, tudo bem?\n\n` +
+        `Me chamo Lenoir e falo da Gplásticos.\n` +
+        `Estou entrando em contato para avisar que a sua mercadoria está pronta para coleta.\n\n` +
+        `- Nota Fiscal Nº ${formData.invoice}\n` +
+        `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
+        `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
 
-    const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
-    
-    // Salvar dados da nota
-    const novaNota: NotaFiscal = {
-      razaoSocial: formData.razaoSocial,
-      numeroNota: formData.invoice,
-      dataEmissao: new Date(),
-      dataEnvioMensagem: new Date(),
-      contato: formData.contato,
-      telefone: formData.whatsapp,
-      status: 'pendente'
-    };
+      const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+      
+      // Salvar dados da nota no Supabase
+      const novaNota: NotaFiscal = {
+        razaoSocial: formData.razaoSocial,
+        numeroNota: formData.invoice,
+        dataEmissao: new Date(),
+        dataEnvioMensagem: new Date(),
+        contato: formData.contato,
+        telefone: formData.whatsapp,
+        status: 'pendente'
+      };
 
-    setNotas([...notas, novaNota]);
-    setEnviado(true);
-    
-    window.open(url, '_blank');
-    setStatus('Mensagem enviada!');
-    toast.success("Nota registrada com sucesso!");
+      await NotasService.create(novaNota);
+      
+      window.open(url, '_blank');
+      setStatus('Mensagem enviada!');
+      toast.success("Nota registrada com sucesso!");
+      
+      // Limpar o formulário
+      setFormData({
+        whatsapp: '',
+        contato: '',
+        razaoSocial: '',
+        invoice: ''
+      });
+    } catch (error) {
+      console.error("Erro ao registrar nota:", error);
+      toast.error("Erro ao registrar nota. Tente novamente.");
+      setStatus('Erro ao enviar. Tente novamente.');
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -79,7 +95,7 @@ const ClientPickup = () => {
                 placeholder="RAZÃO SOCIAL"
                 value={formData.razaoSocial}
                 onChange={(e) => setFormData({...formData, razaoSocial: e.target.value})}
-                className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase"
+                className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
               />
             </div>
 
@@ -89,7 +105,7 @@ const ClientPickup = () => {
                 placeholder="WHATSAPP (COM DDD)"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase"
+                className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
               />
             </div>
 
@@ -99,7 +115,7 @@ const ClientPickup = () => {
                 placeholder="CONTATO"
                 value={formData.contato}
                 onChange={(e) => setFormData({...formData, contato: e.target.value})}
-                className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase"
+                className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
               />
             </div>
 
@@ -109,7 +125,7 @@ const ClientPickup = () => {
                 placeholder="NOTA FISCAL"
                 value={formData.invoice}
                 onChange={(e) => setFormData({...formData, invoice: e.target.value})}
-                className="w-full p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase"
+                className="w-[200px] h-[40px] p-2.5 bg-eink-lightGray rounded-lg outline-none text-xs md:text-sm uppercase font-quicksand mx-auto block"
               />
             </div>
 
@@ -121,9 +137,10 @@ const ClientPickup = () => {
 
             <button
               type="submit"
-              className="w-full p-2.5 bg-eink-black text-eink-white rounded-lg hover:bg-eink-darkGray transition-colors duration-200 text-xs md:text-sm uppercase"
+              disabled={enviando}
+              className="w-[200px] h-[40px] p-2.5 bg-[#ea384c] text-eink-white rounded-lg hover:bg-red-600 transition-colors duration-200 text-xs md:text-sm uppercase font-bold font-quicksand mx-auto block"
             >
-              ENVIAR
+              {enviando ? "ENVIANDO..." : "ENVIAR"}
             </button>
           </form>
         </div>

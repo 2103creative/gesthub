@@ -28,14 +28,14 @@ export const NotasFilters: React.FC<NotasFiltersProps> = ({
           placeholder="Buscar nota fiscal..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 text-xs md:text-sm border border-eink-lightGray rounded-lg focus:outline-none focus:border-eink-gray"
+          className="w-full sm:w-[200px] h-[40px] pl-8 pr-3 text-xs md:text-sm border border-eink-lightGray rounded-lg focus:outline-none focus:border-eink-gray font-quicksand"
         />
       </div>
 
       <select
         value={filtroStatus}
         onChange={(e) => setFiltroStatus(e.target.value)}
-        className="w-full sm:w-auto px-3 py-2 text-xs md:text-sm border border-eink-lightGray rounded-lg focus:outline-none focus:border-eink-gray"
+        className="w-full sm:w-[200px] h-[40px] px-3 text-xs md:text-sm border border-eink-lightGray rounded-lg focus:outline-none focus:border-eink-gray font-quicksand"
       >
         <option value="todos">Todos os status</option>
         <option value="atrasado">Atrasados</option>
@@ -46,7 +46,7 @@ export const NotasFilters: React.FC<NotasFiltersProps> = ({
 
       <button
         onClick={() => setOrdenacao(ordenacao === 'asc' ? 'desc' : 'asc')}
-        className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 text-xs md:text-sm border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10"
+        className="w-full sm:w-auto h-[40px] flex items-center justify-center gap-2 px-3 text-xs md:text-sm border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 font-quicksand"
       >
         <Calendar className="w-3 h-3 md:w-4 md:h-4" />
         {ordenacao === 'asc' ? 'Mais antigos' : 'Mais recentes'}

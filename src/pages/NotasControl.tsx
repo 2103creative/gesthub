@@ -1,53 +1,56 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { toast } from "sonner";
 import type { NotaFiscal } from "../types/NotaFiscal";
 import { Download } from 'lucide-react';
 import { NotasFilters } from '../components/notas/NotasFilters';
 import { NotaFiscalCard } from '../components/notas/NotaFiscalCard';
 import { formatarData, getStatusMessage, getStatusStyle } from '../utils/notasUtils';
+import { NotasService } from "../services/notasService";
+import { useQuery } from '@tanstack/react-query';
 
 const NotasControl = () => {
   const navigate = useNavigate();
-  const [notas] = useLocalStorage<NotaFiscal[]>("notas-fiscais", []);
-  const [notasAtualizadas, setNotasAtualizadas] = useState<NotaFiscal[]>([]);
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<'asc' | 'desc'>('asc');
 
+  // Buscar notas do Supabase
+  const { data: notas = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['notas-fiscais'],
+    queryFn: NotasService.getAll,
+  });
+
   useEffect(() => {
-    const atualizarStatus = () => {
-      const hoje = new Date();
-      return notas.map(nota => {
-        const dataLimite = new Date(nota.dataEnvioMensagem);
-        dataLimite.setDate(dataLimite.getDate() + 7);
-        
-        const diasRestantes = Math.ceil((dataLimite.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-        
-        let status: 'pendente' | 'atrasado' | 'alerta-verde' | 'alerta-amarelo' | 'alerta-vermelho' = 'pendente';
-        
-        if (hoje > dataLimite) {
-          status = 'atrasado';
-        } else if (diasRestantes <= 2) {
-          status = 'alerta-vermelho';
-        } else if (diasRestantes <= 4) {
-          status = 'alerta-amarelo';
-        } else if (diasRestantes <= 7) {
-          status = 'alerta-verde';
-        }
-        
-        return { ...nota, status };
-      });
-    };
+    if (error) {
+      toast.error("Erro ao carregar notas fiscais");
+      console.error("Erro:", error);
+    }
+  }, [error]);
 
-    setNotasAtualizadas(atualizarStatus());
-    const interval = setInterval(() => {
-      setNotasAtualizadas(atualizarStatus());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [notas]);
+  // Atualizar status com base na data de envio
+  const notasAtualizadas = notas.map(nota => {
+    const hoje = new Date();
+    const dataLimite = new Date(nota.dataEnvioMensagem);
+    dataLimite.setDate(dataLimite.getDate() + 7);
+    
+    const diasRestantes = Math.ceil((dataLimite.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let status: 'pendente' | 'atrasado' | 'alerta-verde' | 'alerta-amarelo' | 'alerta-vermelho' = nota.status;
+    
+    if (hoje > dataLimite) {
+      status = 'atrasado';
+    } else if (diasRestantes <= 2) {
+      status = 'alerta-vermelho';
+    } else if (diasRestantes <= 4) {
+      status = 'alerta-amarelo';
+    } else if (diasRestantes <= 7) {
+      status = 'alerta-verde';
+    }
+    
+    return { ...nota, status };
+  });
 
   const filtrarNotas = () => {
     let notasFiltradas = [...notasAtualizadas];
@@ -73,6 +76,8 @@ const NotasControl = () => {
     return notasFiltradas;
   };
 
+  const notasFiltradas = filtrarNotas();
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow">
@@ -97,29 +102,44 @@ const NotasControl = () => {
                 setOrdenacao={setOrdenacao}
               />
 
-              <button
-                onClick={() => window.print()}
-                className="w-full sm:w-auto self-end flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
-              >
-                <Download className="w-3 h-3 md:w-4 md:h-4" />
-                Exportar
-              </button>
+              <div className="flex gap-2 self-end">
+                <button
+                  onClick={() => refetch()}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
+                >
+                  Atualizar
+                </button>
+                
+                <button
+                  onClick={() => window.print()}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
+                >
+                  <Download className="w-3 h-3 md:w-4 md:h-4" />
+                  Exportar
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtrarNotas().map((nota, index) => (
-              <NotaFiscalCard
-                key={index}
-                nota={nota}
-                formatarData={formatarData}
-                getStatusMessage={getStatusMessage}
-                getStatusStyle={getStatusStyle}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-10">
+              <p className="text-eink-gray uppercase">Carregando notas fiscais...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {notasFiltradas.map((nota, index) => (
+                <NotaFiscalCard
+                  key={index}
+                  nota={nota}
+                  formatarData={formatarData}
+                  getStatusMessage={getStatusMessage}
+                  getStatusStyle={getStatusStyle}
+                />
+              ))}
+            </div>
+          )}
 
-          {filtrarNotas().length === 0 && (
+          {!isLoading && notasFiltradas.length === 0 && (
             <div className="text-center text-eink-gray uppercase mt-6 text-xs md:text-sm">
               Nenhuma nota encontrada
             </div>
