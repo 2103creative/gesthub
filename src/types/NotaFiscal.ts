@@ -1,5 +1,6 @@
 
 export interface NotaFiscal {
+  id?: string;
   razaoSocial: string;
   numeroNota: string;
   dataEmissao: Date;

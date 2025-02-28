@@ -2,12 +2,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { NotaFiscal } from "../types/NotaFiscal";
 import type { Database } from "../integrations/supabase/types";
+import { toast } from "sonner";
 
 type NotaFiscalDB = Database['public']['Tables']['notas_fiscais']['Row'];
 
 // Converter do formato do banco para o formato do frontend
 export const dbToNotaFiscal = (notaDB: NotaFiscalDB): NotaFiscal => {
   return {
+    id: notaDB.id,
     razaoSocial: notaDB.razao_social,
     numeroNota: notaDB.numero_nota,
     dataEmissao: new Date(notaDB.data_emissao),
@@ -42,6 +44,7 @@ export const NotasService = {
 
     if (error) {
       console.error('Erro ao buscar notas fiscais:', error);
+      toast.error("Erro ao carregar notas fiscais");
       throw error;
     }
 
@@ -57,9 +60,15 @@ export const NotasService = {
 
     if (error) {
       console.error('Erro ao criar nota fiscal:', error);
+      if (error.code === '23514') {
+        toast.error("Formato de telefone inválido. Use apenas números, parênteses, traços e espaços.");
+      } else {
+        toast.error("Erro ao criar nota fiscal");
+      }
       throw error;
     }
 
+    toast.success("Nota fiscal criada com sucesso");
     return dbToNotaFiscal(data);
   },
 
@@ -75,9 +84,15 @@ export const NotasService = {
 
     if (error) {
       console.error('Erro ao atualizar nota fiscal:', error);
+      if (error.code === '23514') {
+        toast.error("Formato de telefone inválido. Use apenas números, parênteses, traços e espaços.");
+      } else {
+        toast.error("Erro ao atualizar nota fiscal");
+      }
       throw error;
     }
 
+    toast.success("Nota fiscal atualizada com sucesso");
     return dbToNotaFiscal(data);
   },
 
@@ -89,7 +104,23 @@ export const NotasService = {
 
     if (error) {
       console.error('Erro ao excluir nota fiscal:', error);
+      toast.error("Erro ao excluir nota fiscal");
       throw error;
     }
+
+    toast.success("Nota fiscal excluída com sucesso");
+  },
+
+  async atualizarStatus(): Promise<void> {
+    const { error } = await supabase
+      .rpc('atualizar_status_notas');
+
+    if (error) {
+      console.error('Erro ao atualizar status das notas:', error);
+      toast.error("Erro ao atualizar status das notas");
+      throw error;
+    }
+
+    toast.success("Status das notas atualizado com sucesso");
   }
 };

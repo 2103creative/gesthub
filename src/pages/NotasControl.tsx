@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import type { NotaFiscal } from "../types/NotaFiscal";
-import { Download } from 'lucide-react';
+import { Download, RefreshCw } from 'lucide-react';
 import { NotasFilters } from '../components/notas/NotasFilters';
 import { NotaFiscalCard } from '../components/notas/NotaFiscalCard';
 import { formatarData, getStatusMessage, getStatusStyle } from '../utils/notasUtils';
@@ -15,6 +15,7 @@ const NotasControl = () => {
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<'asc' | 'desc'>('asc');
+  const [atualizandoStatus, setAtualizandoStatus] = useState(false);
 
   // Buscar notas do Supabase
   const { data: notas = [], isLoading, error, refetch } = useQuery({
@@ -29,31 +30,20 @@ const NotasControl = () => {
     }
   }, [error]);
 
-  // Atualizar status com base na data de envio
-  const notasAtualizadas = notas.map(nota => {
-    const hoje = new Date();
-    const dataLimite = new Date(nota.dataEnvioMensagem);
-    dataLimite.setDate(dataLimite.getDate() + 7);
-    
-    const diasRestantes = Math.ceil((dataLimite.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-    
-    let status: 'pendente' | 'atrasado' | 'alerta-verde' | 'alerta-amarelo' | 'alerta-vermelho' = nota.status;
-    
-    if (hoje > dataLimite) {
-      status = 'atrasado';
-    } else if (diasRestantes <= 2) {
-      status = 'alerta-vermelho';
-    } else if (diasRestantes <= 4) {
-      status = 'alerta-amarelo';
-    } else if (diasRestantes <= 7) {
-      status = 'alerta-verde';
+  const handleAtualizarStatus = async () => {
+    try {
+      setAtualizandoStatus(true);
+      await NotasService.atualizarStatus();
+      await refetch();
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+    } finally {
+      setAtualizandoStatus(false);
     }
-    
-    return { ...nota, status };
-  });
+  };
 
   const filtrarNotas = () => {
-    let notasFiltradas = [...notasAtualizadas];
+    let notasFiltradas = [...notas];
 
     if (filtroStatus !== 'todos') {
       notasFiltradas = notasFiltradas.filter(nota => nota.status === filtroStatus);
@@ -111,6 +101,15 @@ const NotasControl = () => {
                 </button>
                 
                 <button
+                  onClick={handleAtualizarStatus}
+                  disabled={atualizandoStatus}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
+                >
+                  <RefreshCw className={`w-3 h-3 md:w-4 md:h-4 ${atualizandoStatus ? 'animate-spin' : ''}`} />
+                  Atualizar Status
+                </button>
+                
+                <button
                   onClick={() => window.print()}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
                 >
@@ -129,7 +128,7 @@ const NotasControl = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {notasFiltradas.map((nota, index) => (
                 <NotaFiscalCard
-                  key={index}
+                  key={nota.id || index}
                   nota={nota}
                   formatarData={formatarData}
                   getStatusMessage={getStatusMessage}
