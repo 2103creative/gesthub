@@ -58,9 +58,9 @@ export const NotasList: React.FC<NotasListProps> = ({
             formatarData={formatarData}
             getStatusMessage={getStatusMessage}
             getStatusStyle={getStatusStyle}
-            onMarcarRetirado={undefined}
+            onMarcarRetirado={activeTab === 'pendentes' ? onMarcarRetirado : undefined}
           />
-          {activeTab === 'pendentes' && nota.id && (
+          {activeTab === 'pendentes' && nota.id && !nota.retirado && (
             <div className="absolute top-3 right-3">
               {renderRetirarButton(nota.id)}
             </div>

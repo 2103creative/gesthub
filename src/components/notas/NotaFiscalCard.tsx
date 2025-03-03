@@ -5,8 +5,8 @@ import type { NotaFiscal } from '../../types/NotaFiscal';
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
   formatarData: (data: Date) => string;
-  getStatusMessage: (status: string) => string;
-  getStatusStyle: (status: string) => string;
+  getStatusMessage: (status: string, dataPrimeiraMensagem?: Date | string) => string;
+  getStatusStyle: (status: string, dataPrimeiraMensagem?: Date | string) => string;
   onMarcarRetirado?: (id: string) => void;
 }
 
@@ -74,6 +74,12 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
         {!nota.retirado && nota.status !== 'pendente' && (
           <div className={`mt-2.5 md:mt-4 p-2 md:p-3 rounded-md uppercase text-xs font-medium font-quicksand ${getStatusStyle(nota.status)}`}>
             {getStatusMessage(nota.status)}
+          </div>
+        )}
+
+        {!nota.retirado && nota.status === 'pendente' && nota.primeira_mensagem && (
+          <div className={`mt-2.5 md:mt-4 p-2 md:p-3 rounded-md uppercase text-xs font-medium font-quicksand ${getStatusStyle(nota.status, nota.primeira_mensagem)}`}>
+            {getStatusMessage(nota.status, nota.primeira_mensagem)}
           </div>
         )}
 

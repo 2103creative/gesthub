@@ -7,7 +7,32 @@ export const formatarData = (data: Date) => {
   });
 };
 
-export const getStatusMessage = (status: string) => {
+export const getDiasPassados = (dataPrimeiraMensagem: Date | string) => {
+  const dataInicial = new Date(dataPrimeiraMensagem);
+  const hoje = new Date();
+  
+  // Calculando a diferença em milissegundos
+  const diffTime = Math.abs(hoje.getTime() - dataInicial.getTime());
+  // Convertendo para dias
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
+};
+
+export const getStatusMessage = (status: string, dataPrimeiraMensagem?: Date | string) => {
+  if (status === 'pendente' && dataPrimeiraMensagem) {
+    const diasPassados = getDiasPassados(dataPrimeiraMensagem);
+    const diasRestantes = 7 - diasPassados;
+    
+    if (diasPassados >= 6) {
+      return `Atenção: 1 dia ou menos para expirar (${diasPassados} dias passados)`;
+    } else if (diasPassados >= 3) {
+      return `Atenção: ${diasRestantes} dias para expirar (${diasPassados} dias passados)`;
+    } else {
+      return `Em andamento: ${diasRestantes} dias restantes (${diasPassados} dias passados)`;
+    }
+  }
+  
   switch (status) {
     case 'atrasado':
       return 'Prazo de retirada expirado';
@@ -22,7 +47,19 @@ export const getStatusMessage = (status: string) => {
   }
 };
 
-export const getStatusStyle = (status: string) => {
+export const getStatusStyle = (status: string, dataPrimeiraMensagem?: Date | string) => {
+  if (status === 'pendente' && dataPrimeiraMensagem) {
+    const diasPassados = getDiasPassados(dataPrimeiraMensagem);
+    
+    if (diasPassados >= 6) {
+      return 'bg-red-50 text-red-600';
+    } else if (diasPassados >= 3) {
+      return 'bg-yellow-50 text-yellow-600';
+    } else {
+      return 'bg-green-50 text-green-600';
+    }
+  }
+  
   switch (status) {
     case 'atrasado':
     case 'alerta-vermelho':
