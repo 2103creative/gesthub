@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { NotaFiscal } from "../types/NotaFiscal";
 import type { Database } from "../integrations/supabase/types";
@@ -42,7 +41,12 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
     telefone: nota.telefone,
     status: nota.status,
     retirado: nota.retirado || false,
-    data_retirada: nota.data_retirada,
+    data_retirada: nota.data_retirada ? 
+      (typeof nota.data_retirada === 'string' ? 
+        nota.data_retirada : 
+        nota.data_retirada.toISOString()
+      ) : 
+      null,
   };
 };
 
@@ -83,9 +87,11 @@ export const NotasService = {
     
     nota.primeira_mensagem = primeiraMsg;
 
+    const dbNota = notaFiscalToDB(nota);
+    
     const { data, error } = await supabase
       .from('notas_fiscais')
-      .insert(notaFiscalToDB(nota))
+      .insert(dbNota)
       .select()
       .single();
 

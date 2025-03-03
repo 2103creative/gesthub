@@ -2,27 +2,35 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
-import type { NotaFiscal } from "../types/NotaFiscal";
-import { Download, RefreshCw, CheckCircle } from 'lucide-react';
-import { NotasFilters } from '../components/notas/NotasFilters';
-import { NotaFiscalCard } from '../components/notas/NotaFiscalCard';
-import { formatarData, getStatusMessage, getStatusStyle } from '../utils/notasUtils';
-import { NotasService } from "../services/notasService";
 import { useQuery } from '@tanstack/react-query';
+import { NotasFilters } from '../components/notas/NotasFilters';
+import { NotasTabs } from '../components/notas/NotasTabs';
+import { NotasActionButtons } from '../components/notas/NotasActionButtons';
+import { NotasList } from '../components/notas/NotasList';
+import { NotasService } from "../services/notasService";
+import { useNotasFiscais } from '../hooks/useNotasFiscais';
 
 const NotasControl = () => {
   const navigate = useNavigate();
-  const [filtroStatus, setFiltroStatus] = useState<string>('todos');
-  const [busca, setBusca] = useState('');
-  const [ordenacao, setOrdenacao] = useState<'asc' | 'desc'>('asc');
   const [atualizandoStatus, setAtualizandoStatus] = useState(false);
-  const [activeTab, setActiveTab] = useState<'pendentes' | 'retirados'>('pendentes');
-
+  
   // Buscar notas do Supabase
   const { data: notas = [], isLoading, error, refetch } = useQuery({
     queryKey: ['notas-fiscais'],
     queryFn: NotasService.getAll,
   });
+
+  const {
+    filtroStatus,
+    setFiltroStatus,
+    busca,
+    setBusca,
+    ordenacao,
+    setOrdenacao,
+    activeTab,
+    setActiveTab,
+    notasFiltradas
+  } = useNotasFiscais(notas);
 
   useEffect(() => {
     if (error) {
@@ -52,68 +60,6 @@ const NotasControl = () => {
     }
   };
 
-  const filtrarNotas = () => {
-    let notasFiltradas = [...notas];
-
-    // Filtrar por retirado/pendente
-    notasFiltradas = notasFiltradas.filter(nota => 
-      activeTab === 'pendentes' ? !nota.retirado : nota.retirado
-    );
-
-    if (filtroStatus !== 'todos' && activeTab === 'pendentes') {
-      notasFiltradas = notasFiltradas.filter(nota => nota.status === filtroStatus);
-    }
-
-    if (busca) {
-      const termoBusca = busca.toLowerCase();
-      notasFiltradas = notasFiltradas.filter(nota => 
-        nota.razaoSocial.toLowerCase().includes(termoBusca) ||
-        nota.numeroNota.toLowerCase().includes(termoBusca)
-      );
-    }
-
-    // Para as notas pendentes, agrupamos por razão social e número da nota
-    // e mantemos apenas o registro mais recente
-    if (activeTab === 'pendentes') {
-      const notasUnicas = new Map();
-      
-      notasFiltradas.forEach(nota => {
-        const chave = `${nota.razaoSocial}-${nota.numeroNota}`;
-        if (!notasUnicas.has(chave) || new Date(nota.dataEnvioMensagem) > new Date(notasUnicas.get(chave).dataEnvioMensagem)) {
-          notasUnicas.set(chave, nota);
-        }
-      });
-      
-      notasFiltradas = Array.from(notasUnicas.values());
-    }
-
-    // Ordenação
-    notasFiltradas.sort((a, b) => {
-      const dataA = new Date(a.dataEnvioMensagem).getTime();
-      const dataB = new Date(b.dataEnvioMensagem).getTime();
-      return ordenacao === 'asc' ? dataA - dataB : dataB - dataA;
-    });
-
-    return notasFiltradas;
-  };
-
-  const renderRetirarButton = (id: string) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation(); // Evitar que o clique se propague para o card
-        handleMarcarRetirado(id);
-      }}
-      className="px-2 py-1 text-xs bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
-    >
-      <div className="flex items-center gap-1">
-        <CheckCircle className="w-3 h-3" />
-        <span>Retirado</span>
-      </div>
-    </button>
-  );
-
-  const notasFiltradas = filtrarNotas();
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow">
@@ -129,29 +75,7 @@ const NotasControl = () => {
             <h1 className="text-lg md:text-2xl font-light uppercase">Controle de Notas</h1>
             
             <div className="flex flex-col w-full gap-3">
-              {/* Tabs para alternar entre pendentes e retirados */}
-              <div className="flex border-b border-eink-lightGray mb-2">
-                <button
-                  onClick={() => setActiveTab('pendentes')}
-                  className={`px-4 py-2 text-sm font-medium uppercase ${
-                    activeTab === 'pendentes' 
-                      ? 'border-b-2 border-eink-black' 
-                      : 'text-eink-gray'
-                  }`}
-                >
-                  Retirar
-                </button>
-                <button
-                  onClick={() => setActiveTab('retirados')}
-                  className={`px-4 py-2 text-sm font-medium uppercase ${
-                    activeTab === 'retirados' 
-                      ? 'border-b-2 border-eink-black' 
-                      : 'text-eink-gray'
-                  }`}
-                >
-                  Retirado
-                </button>
-              </div>
+              <NotasTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
               {activeTab === 'pendentes' && (
                 <NotasFilters
@@ -164,66 +88,21 @@ const NotasControl = () => {
                 />
               )}
 
-              <div className="flex gap-2 self-end">
-                <button
-                  onClick={() => refetch()}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
-                >
-                  Atualizar
-                </button>
-                
-                {activeTab === 'pendentes' && (
-                  <button
-                    onClick={handleAtualizarStatus}
-                    disabled={atualizandoStatus}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
-                  >
-                    <RefreshCw className={`w-3 h-3 md:w-4 md:h-4 ${atualizandoStatus ? 'animate-spin' : ''}`} />
-                    Atualizar Status
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => window.print()}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
-                >
-                  <Download className="w-3 h-3 md:w-4 md:h-4" />
-                  Exportar
-                </button>
-              </div>
+              <NotasActionButtons 
+                onRefresh={refetch}
+                onUpdateStatus={handleAtualizarStatus}
+                atualizandoStatus={atualizandoStatus}
+                activeTab={activeTab}
+              />
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="text-center py-10">
-              <p className="text-eink-gray uppercase">Carregando notas fiscais...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {notasFiltradas.map((nota, index) => (
-                <div key={nota.id || index} className="relative">
-                  <NotaFiscalCard
-                    nota={nota}
-                    formatarData={formatarData}
-                    getStatusMessage={getStatusMessage}
-                    getStatusStyle={getStatusStyle}
-                    onMarcarRetirado={undefined} // Substituído pelo botão customizado
-                  />
-                  {activeTab === 'pendentes' && nota.id && (
-                    <div className="absolute top-3 right-3">
-                      {renderRetirarButton(nota.id)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {!isLoading && notasFiltradas.length === 0 && (
-            <div className="text-center text-eink-gray uppercase mt-6 text-xs md:text-sm">
-              {activeTab === 'pendentes' ? 'Nenhuma nota pendente encontrada' : 'Nenhuma nota retirada encontrada'}
-            </div>
-          )}
+          <NotasList 
+            notas={notasFiltradas}
+            activeTab={activeTab}
+            isLoading={isLoading}
+            onMarcarRetirado={handleMarcarRetirado}
+          />
         </div>
       </div>
       
