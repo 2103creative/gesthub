@@ -147,7 +147,7 @@ const ClientPickup = () => {
       </div>
       
       <footer className="w-full py-3 text-xs text-eink-gray text-center uppercase">
-        © 2025 - DESENVOLVIDO POR 2103 CREATIVE - DESDE 2024
+        © 2103 CREATIVE - 2025
       </footer>
     </div>
   );
