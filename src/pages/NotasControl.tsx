@@ -16,6 +16,7 @@ const NotasControl = () => {
   const [busca, setBusca] = useState('');
   const [ordenacao, setOrdenacao] = useState<'asc' | 'desc'>('asc');
   const [atualizandoStatus, setAtualizandoStatus] = useState(false);
+  const [activeTab, setActiveTab] = useState<'pendentes' | 'retirados'>('pendentes');
 
   // Buscar notas do Supabase
   const { data: notas = [], isLoading, error, refetch } = useQuery({
@@ -42,10 +43,26 @@ const NotasControl = () => {
     }
   };
 
+  const handleMarcarRetirado = async (id: string) => {
+    try {
+      await NotasService.marcarRetirado(id);
+      toast.success("Nota marcada como retirada");
+      refetch();
+    } catch (error) {
+      console.error("Erro ao marcar nota como retirada:", error);
+      toast.error("Erro ao marcar nota como retirada");
+    }
+  };
+
   const filtrarNotas = () => {
     let notasFiltradas = [...notas];
 
-    if (filtroStatus !== 'todos') {
+    // Filtrar por retirado/pendente
+    notasFiltradas = notasFiltradas.filter(nota => 
+      activeTab === 'pendentes' ? !nota.retirado : nota.retirado
+    );
+
+    if (filtroStatus !== 'todos' && activeTab === 'pendentes') {
       notasFiltradas = notasFiltradas.filter(nota => nota.status === filtroStatus);
     }
 
@@ -55,6 +72,21 @@ const NotasControl = () => {
         nota.razaoSocial.toLowerCase().includes(termoBusca) ||
         nota.numeroNota.toLowerCase().includes(termoBusca)
       );
+    }
+
+    // Para as notas pendentes, agrupamos por razão social e número da nota
+    // e mantemos apenas o registro mais recente
+    if (activeTab === 'pendentes') {
+      const notasUnicas = new Map();
+      
+      notasFiltradas.forEach(nota => {
+        const chave = `${nota.razaoSocial}-${nota.numeroNota}`;
+        if (!notasUnicas.has(chave) || new Date(nota.dataEnvioMensagem) > new Date(notasUnicas.get(chave).dataEnvioMensagem)) {
+          notasUnicas.set(chave, nota);
+        }
+      });
+      
+      notasFiltradas = Array.from(notasUnicas.values());
     }
 
     notasFiltradas.sort((a, b) => {
@@ -83,14 +115,40 @@ const NotasControl = () => {
             <h1 className="text-lg md:text-2xl font-light uppercase">Controle de Notas</h1>
             
             <div className="flex flex-col w-full gap-3">
-              <NotasFilters
-                busca={busca}
-                setBusca={setBusca}
-                filtroStatus={filtroStatus}
-                setFiltroStatus={setFiltroStatus}
-                ordenacao={ordenacao}
-                setOrdenacao={setOrdenacao}
-              />
+              {/* Tabs para alternar entre pendentes e retirados */}
+              <div className="flex border-b border-eink-lightGray mb-2">
+                <button
+                  onClick={() => setActiveTab('pendentes')}
+                  className={`px-4 py-2 text-sm font-medium uppercase ${
+                    activeTab === 'pendentes' 
+                      ? 'border-b-2 border-eink-black' 
+                      : 'text-eink-gray'
+                  }`}
+                >
+                  Retirar
+                </button>
+                <button
+                  onClick={() => setActiveTab('retirados')}
+                  className={`px-4 py-2 text-sm font-medium uppercase ${
+                    activeTab === 'retirados' 
+                      ? 'border-b-2 border-eink-black' 
+                      : 'text-eink-gray'
+                  }`}
+                >
+                  Retirado
+                </button>
+              </div>
+
+              {activeTab === 'pendentes' && (
+                <NotasFilters
+                  busca={busca}
+                  setBusca={setBusca}
+                  filtroStatus={filtroStatus}
+                  setFiltroStatus={setFiltroStatus}
+                  ordenacao={ordenacao}
+                  setOrdenacao={setOrdenacao}
+                />
+              )}
 
               <div className="flex gap-2 self-end">
                 <button
@@ -100,14 +158,16 @@ const NotasControl = () => {
                   Atualizar
                 </button>
                 
-                <button
-                  onClick={handleAtualizarStatus}
-                  disabled={atualizandoStatus}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
-                >
-                  <RefreshCw className={`w-3 h-3 md:w-4 md:h-4 ${atualizandoStatus ? 'animate-spin' : ''}`} />
-                  Atualizar Status
-                </button>
+                {activeTab === 'pendentes' && (
+                  <button
+                    onClick={handleAtualizarStatus}
+                    disabled={atualizandoStatus}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 border border-eink-lightGray rounded-lg hover:bg-eink-lightGray/10 text-xs md:text-sm"
+                  >
+                    <RefreshCw className={`w-3 h-3 md:w-4 md:h-4 ${atualizandoStatus ? 'animate-spin' : ''}`} />
+                    Atualizar Status
+                  </button>
+                )}
                 
                 <button
                   onClick={() => window.print()}
@@ -133,6 +193,7 @@ const NotasControl = () => {
                   formatarData={formatarData}
                   getStatusMessage={getStatusMessage}
                   getStatusStyle={getStatusStyle}
+                  onMarcarRetirado={activeTab === 'pendentes' ? handleMarcarRetirado : undefined}
                 />
               ))}
             </div>
@@ -140,7 +201,7 @@ const NotasControl = () => {
 
           {!isLoading && notasFiltradas.length === 0 && (
             <div className="text-center text-eink-gray uppercase mt-6 text-xs md:text-sm">
-              Nenhuma nota encontrada
+              {activeTab === 'pendentes' ? 'Nenhuma nota pendente encontrada' : 'Nenhuma nota retirada encontrada'}
             </div>
           )}
         </div>

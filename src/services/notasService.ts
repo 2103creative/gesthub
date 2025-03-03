@@ -14,9 +14,12 @@ export const dbToNotaFiscal = (notaDB: NotaFiscalDB): NotaFiscal => {
     numeroNota: notaDB.numero_nota,
     dataEmissao: new Date(notaDB.data_emissao),
     dataEnvioMensagem: new Date(notaDB.data_envio_mensagem),
+    primeira_mensagem: notaDB.primeira_mensagem || notaDB.data_envio_mensagem,
     contato: notaDB.contato,
     telefone: notaDB.telefone,
     status: notaDB.status,
+    retirado: notaDB.retirado || false,
+    data_retirada: notaDB.data_retirada,
     created_at: notaDB.created_at ? new Date(notaDB.created_at) : undefined,
     updated_at: notaDB.updated_at ? new Date(notaDB.updated_at) : undefined,
   };
@@ -29,9 +32,12 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
     numero_nota: nota.numeroNota,
     data_emissao: nota.dataEmissao.toISOString(),
     data_envio_mensagem: nota.dataEnvioMensagem.toISOString(),
+    primeira_mensagem: nota.primeira_mensagem || nota.dataEnvioMensagem.toISOString(),
     contato: nota.contato,
     telefone: nota.telefone,
     status: nota.status,
+    retirado: nota.retirado || false,
+    data_retirada: nota.data_retirada,
   };
 };
 
@@ -52,6 +58,21 @@ export const NotasService = {
   },
 
   async create(nota: NotaFiscal): Promise<NotaFiscal> {
+    // Verificar se já existe uma nota com a mesma razão social e número
+    const { data: existingNotas } = await supabase
+      .from('notas_fiscais')
+      .select('*')
+      .eq('razao_social', nota.razaoSocial)
+      .eq('numero_nota', nota.numeroNota)
+      .eq('retirado', false);
+    
+    // Se existir, use a data da primeira mensagem
+    if (existingNotas && existingNotas.length > 0) {
+      nota.primeira_mensagem = existingNotas[0].primeira_mensagem || existingNotas[0].data_envio_mensagem;
+    } else {
+      nota.primeira_mensagem = nota.dataEnvioMensagem.toISOString();
+    }
+
     const { data, error } = await supabase
       .from('notas_fiscais')
       .insert(notaFiscalToDB(nota))
@@ -122,5 +143,21 @@ export const NotasService = {
     }
 
     toast.success("Status das notas atualizado com sucesso");
+  },
+
+  async marcarRetirado(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('notas_fiscais')
+      .update({ 
+        retirado: true,
+        data_retirada: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erro ao marcar nota como retirada:', error);
+      toast.error("Erro ao marcar nota como retirada");
+      throw error;
+    }
   }
 };
