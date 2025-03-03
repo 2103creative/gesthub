@@ -32,7 +32,12 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
     numero_nota: nota.numeroNota,
     data_emissao: nota.dataEmissao.toISOString(),
     data_envio_mensagem: nota.dataEnvioMensagem.toISOString(),
-    primeira_mensagem: nota.primeira_mensagem || nota.dataEnvioMensagem.toISOString(),
+    primeira_mensagem: nota.primeira_mensagem ? 
+      (typeof nota.primeira_mensagem === 'string' ? 
+        nota.primeira_mensagem : 
+        nota.primeira_mensagem.toISOString()
+      ) : 
+      nota.dataEnvioMensagem.toISOString(),
     contato: nota.contato,
     telefone: nota.telefone,
     status: nota.status,
@@ -66,12 +71,17 @@ export const NotasService = {
       .eq('numero_nota', nota.numeroNota)
       .eq('retirado', false);
     
-    // Se existir, use a data da primeira mensagem
+    // Se existir, use a data da primeira mensagem do registro mais antigo
+    let primeiraMsg = nota.dataEnvioMensagem.toISOString();
     if (existingNotas && existingNotas.length > 0) {
-      nota.primeira_mensagem = existingNotas[0].primeira_mensagem || existingNotas[0].data_envio_mensagem;
-    } else {
-      nota.primeira_mensagem = nota.dataEnvioMensagem.toISOString();
+      // Ordenar por data de criação para pegar o registro mais antigo
+      const sortedNotas = [...existingNotas].sort((a, b) => 
+        new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+      );
+      primeiraMsg = sortedNotas[0].primeira_mensagem || sortedNotas[0].data_envio_mensagem;
     }
+    
+    nota.primeira_mensagem = primeiraMsg;
 
     const { data, error } = await supabase
       .from('notas_fiscais')
@@ -159,5 +169,7 @@ export const NotasService = {
       toast.error("Erro ao marcar nota como retirada");
       throw error;
     }
+    
+    toast.success("Nota fiscal marcada como retirada");
   }
 };

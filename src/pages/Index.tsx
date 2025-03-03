@@ -21,7 +21,7 @@ const MainMenu = () => {
       to={to}
       className="block w-[200px] h-[40px] leading-[40px] mx-auto bg-eink-black hover:bg-eink-gray transition-colors duration-200 rounded-lg shadow-sm relative"
     >
-      <span className="text-[14px] font-medium text-white uppercase font-quicksand absolute left-1/2 -translate-x-1/3">{label}</span>
+      <span className="text-[14px] font-medium text-white uppercase font-quicksand absolute left-1/2 -translate-x-1/4">{label}</span>
     </Link>
   );
 

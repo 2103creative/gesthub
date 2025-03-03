@@ -15,9 +15,12 @@ export type Database = {
           created_at: string | null
           data_emissao: string
           data_envio_mensagem: string
+          data_retirada: string | null
           id: string
           numero_nota: string
+          primeira_mensagem: string | null
           razao_social: string
+          retirado: boolean | null
           status: Database["public"]["Enums"]["nota_status"]
           telefone: string
           updated_at: string | null
@@ -27,9 +30,12 @@ export type Database = {
           created_at?: string | null
           data_emissao: string
           data_envio_mensagem: string
+          data_retirada?: string | null
           id?: string
           numero_nota: string
+          primeira_mensagem?: string | null
           razao_social: string
+          retirado?: boolean | null
           status?: Database["public"]["Enums"]["nota_status"]
           telefone: string
           updated_at?: string | null
@@ -39,9 +45,12 @@ export type Database = {
           created_at?: string | null
           data_emissao?: string
           data_envio_mensagem?: string
+          data_retirada?: string | null
           id?: string
           numero_nota?: string
+          primeira_mensagem?: string | null
           razao_social?: string
+          retirado?: boolean | null
           status?: Database["public"]["Enums"]["nota_status"]
           telefone?: string
           updated_at?: string | null

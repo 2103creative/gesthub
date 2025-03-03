@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import type { NotaFiscal } from "../types/NotaFiscal";
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, CheckCircle } from 'lucide-react';
 import { NotasFilters } from '../components/notas/NotasFilters';
 import { NotaFiscalCard } from '../components/notas/NotaFiscalCard';
 import { formatarData, getStatusMessage, getStatusStyle } from '../utils/notasUtils';
@@ -46,11 +46,9 @@ const NotasControl = () => {
   const handleMarcarRetirado = async (id: string) => {
     try {
       await NotasService.marcarRetirado(id);
-      toast.success("Nota marcada como retirada");
       refetch();
     } catch (error) {
       console.error("Erro ao marcar nota como retirada:", error);
-      toast.error("Erro ao marcar nota como retirada");
     }
   };
 
@@ -89,6 +87,7 @@ const NotasControl = () => {
       notasFiltradas = Array.from(notasUnicas.values());
     }
 
+    // Ordenação
     notasFiltradas.sort((a, b) => {
       const dataA = new Date(a.dataEnvioMensagem).getTime();
       const dataB = new Date(b.dataEnvioMensagem).getTime();
@@ -97,6 +96,21 @@ const NotasControl = () => {
 
     return notasFiltradas;
   };
+
+  const renderRetirarButton = (id: string) => (
+    <button
+      onClick={(e) => {
+        e.stopPropagation(); // Evitar que o clique se propague para o card
+        handleMarcarRetirado(id);
+      }}
+      className="px-2 py-1 text-xs bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+    >
+      <div className="flex items-center gap-1">
+        <CheckCircle className="w-3 h-3" />
+        <span>Retirado</span>
+      </div>
+    </button>
+  );
 
   const notasFiltradas = filtrarNotas();
 
@@ -187,14 +201,20 @@ const NotasControl = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {notasFiltradas.map((nota, index) => (
-                <NotaFiscalCard
-                  key={nota.id || index}
-                  nota={nota}
-                  formatarData={formatarData}
-                  getStatusMessage={getStatusMessage}
-                  getStatusStyle={getStatusStyle}
-                  onMarcarRetirado={activeTab === 'pendentes' ? handleMarcarRetirado : undefined}
-                />
+                <div key={nota.id || index} className="relative">
+                  <NotaFiscalCard
+                    nota={nota}
+                    formatarData={formatarData}
+                    getStatusMessage={getStatusMessage}
+                    getStatusStyle={getStatusStyle}
+                    onMarcarRetirado={undefined} // Substituído pelo botão customizado
+                  />
+                  {activeTab === 'pendentes' && nota.id && (
+                    <div className="absolute top-3 right-3">
+                      {renderRetirarButton(nota.id)}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
