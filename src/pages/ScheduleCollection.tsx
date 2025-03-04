@@ -32,7 +32,8 @@ const ScheduleCollection = () => {
       `- Peso: ${formData.weight} kg\n` +
       `- Cubagem: ${formData.cubicMeters} M³\n` +
       `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
-      `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
+      `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n` +
+      `- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7`;
 
     // Modificando para abrir apenas WhatsApp Web
     const url = `https://web.whatsapp.com/send?phone=55${phone}&text=${encodeURIComponent(message)}`;

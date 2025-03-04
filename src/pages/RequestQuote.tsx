@@ -40,7 +40,8 @@ const RequestQuote = () => {
       `Estou entrando em contato para fazer uma cotação.\n\n` +
       `${selectedMaterials.join('\n\n')}\n\n` +
       `- Horários para entrega: Segunda a Sexta, das 08h às 18h\n` +
-      `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
+      `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n` +
+      `- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7`;
 
     const phone = CONTACTS[selectedContact as keyof typeof CONTACTS];
     // Modificando para abrir apenas WhatsApp Web
