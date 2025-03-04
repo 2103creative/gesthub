@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
@@ -39,7 +38,8 @@ const ClientPickup = () => {
         `- Nota Fiscal Nº ${formData.invoice}\n` +
         `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
         `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n` +
-        `- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7`;
+        `- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7\n\n` +
+        `Qualquer dúvida, fico à disposição.`;
 
       // Modificando para abrir apenas WhatsApp Web
       const url = `https://web.whatsapp.com/send?phone=55${phone}&text=${encodeURIComponent(message)}`;
