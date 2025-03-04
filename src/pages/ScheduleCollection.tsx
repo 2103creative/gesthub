@@ -34,7 +34,8 @@ const ScheduleCollection = () => {
       `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
       `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
 
-    const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+    // Modificando para abrir apenas WhatsApp Web
+    const url = `https://web.whatsapp.com/send?phone=55${phone}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setStatus('Mensagem enviada!');
   };

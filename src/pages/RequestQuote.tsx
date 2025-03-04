@@ -43,7 +43,8 @@ const RequestQuote = () => {
       `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150`;
 
     const phone = CONTACTS[selectedContact as keyof typeof CONTACTS];
-    const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    // Modificando para abrir apenas WhatsApp Web
+    const url = `https://web.whatsapp.com/send?phone=${phone.replace(/\D/g, '')}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setStatus('Mensagem enviada!');
   };
