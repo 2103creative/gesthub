@@ -3,7 +3,6 @@ import React from 'react';
 import { NotaFiscal } from "../../types/NotaFiscal";
 import { NotaFiscalCard } from './NotaFiscalCard';
 import { formatarData, getStatusMessage, getStatusStyle } from '../../utils/notasUtils';
-import { CheckCircle } from 'lucide-react';
 
 interface NotasListProps {
   notas: NotaFiscal[];
@@ -18,21 +17,6 @@ export const NotasList: React.FC<NotasListProps> = ({
   isLoading,
   onMarcarRetirado
 }) => {
-  const renderRetirarButton = (id: string) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onMarcarRetirado(id);
-      }}
-      className="px-2 py-1 text-xs bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
-    >
-      <div className="flex items-center gap-1">
-        <CheckCircle className="w-3 h-3" />
-        <span>Retirado</span>
-      </div>
-    </button>
-  );
-
   if (isLoading) {
     return (
       <div className="text-center py-10">
@@ -50,7 +34,7 @@ export const NotasList: React.FC<NotasListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       {notas.map((nota, index) => (
         <div key={nota.id || index} className="relative">
           <NotaFiscalCard
@@ -60,13 +44,8 @@ export const NotasList: React.FC<NotasListProps> = ({
             getStatusStyle={getStatusStyle}
             onMarcarRetirado={activeTab === 'pendentes' ? onMarcarRetirado : undefined}
           />
-          {activeTab === 'pendentes' && nota.id && !nota.retirado && (
-            <div className="absolute top-3 right-3">
-              {renderRetirarButton(nota.id)}
-            </div>
-          )}
         </div>
       ))}
     </div>
   );
-};
+}

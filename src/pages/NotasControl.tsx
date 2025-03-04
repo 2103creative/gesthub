@@ -63,16 +63,16 @@ const NotasControl = () => {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow">
-        <div className="w-full max-w-6xl mx-auto px-3 py-6 md:py-12">
+        <div className="w-full max-w-7xl mx-auto px-3 py-4 md:py-8">
           <button 
             onClick={() => navigate('/')}
-            className="mb-6 md:mb-8 text-eink-gray hover:text-eink-black uppercase text-xs md:text-sm"
+            className="mb-4 md:mb-6 text-eink-gray hover:text-eink-black uppercase text-xs"
           >
             ← VOLTAR
           </button>
 
-          <div className="flex flex-col gap-4 mb-6">
-            <h1 className="text-lg md:text-2xl font-light uppercase">Controle de Notas</h1>
+          <div className="flex flex-col gap-4 mb-4">
+            <h1 className="text-lg md:text-xl font-light uppercase">Controle de Notas</h1>
             
             <div className="flex flex-col w-full gap-3">
               <NotasTabs activeTab={activeTab} setActiveTab={setActiveTab} />
