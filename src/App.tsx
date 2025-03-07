@@ -9,6 +9,7 @@ import ClientPickup from "./pages/ClientPickup";
 import ScheduleCollection from "./pages/ScheduleCollection";
 import RequestQuote from "./pages/RequestQuote";
 import NotasControl from "./pages/NotasControl";
+import NotasDashboard from "./pages/NotasDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/schedule-collection" element={<ScheduleCollection />} />
           <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/notas-control" element={<NotasControl />} />
+          <Route path="/notas-dashboard" element={<NotasDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

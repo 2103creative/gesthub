@@ -17,6 +17,26 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   getStatusStyle,
   onMarcarRetirado,
 }) => {
+  // Calculate message count based on dates
+  const calculaMensagens = () => {
+    if (!nota.dataEnvioMensagem) return "0x";
+    if (!nota.primeira_mensagem) return "1x";
+    
+    const dataEnvio = new Date(nota.dataEnvioMensagem);
+    const dataPrimeira = new Date(nota.primeira_mensagem);
+    
+    // If dates are the same, it's the first message
+    if (dataEnvio.toDateString() === dataPrimeira.toDateString()) return "1x";
+    
+    // Calculate difference in days and divide by 2 (assuming messages are sent every 2 days on average)
+    // Add 1 for the first message
+    const diffTime = Math.abs(dataEnvio.getTime() - dataPrimeira.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const messageCount = Math.ceil(diffDays / 2) + 1;
+    
+    return `${messageCount}x`;
+  };
+
   return (
     <div className="relative w-full bg-eink-white rounded-lg border border-eink-lightGray shadow-sm transition-all duration-300 hover:shadow-md">
       <div className="p-2.5 md:p-3">
@@ -60,7 +80,9 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
 
           <div>
             <p className="text-eink-gray text-xs uppercase font-quicksand">Mensagem Enviada</p>
-            <p className="font-medium text-xs font-quicksand">{formatarData(nota.dataEnvioMensagem)}</p>
+            <p className="font-medium text-xs font-quicksand">
+              {formatarData(nota.dataEnvioMensagem)} - {calculaMensagens()}
+            </p>
           </div>
 
           {nota.primeira_mensagem && nota.dataEnvioMensagem !== nota.primeira_mensagem && (
