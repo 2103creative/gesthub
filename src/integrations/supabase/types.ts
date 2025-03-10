@@ -17,6 +17,7 @@ export type Database = {
           data_envio_mensagem: string
           data_retirada: string | null
           id: string
+          mensagem_count: number | null
           numero_nota: string
           primeira_mensagem: string | null
           razao_social: string
@@ -32,6 +33,7 @@ export type Database = {
           data_envio_mensagem: string
           data_retirada?: string | null
           id?: string
+          mensagem_count?: number | null
           numero_nota: string
           primeira_mensagem?: string | null
           razao_social: string
@@ -47,6 +49,7 @@ export type Database = {
           data_envio_mensagem?: string
           data_retirada?: string | null
           id?: string
+          mensagem_count?: number | null
           numero_nota?: string
           primeira_mensagem?: string | null
           razao_social?: string
@@ -65,6 +68,25 @@ export type Database = {
       atualizar_status_notas: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_notas_with_message_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          razao_social: string
+          numero_nota: string
+          data_emissao: string
+          data_envio_mensagem: string
+          primeira_mensagem: string
+          contato: string
+          telefone: string
+          status: string
+          retirado: boolean
+          data_retirada: string
+          created_at: string
+          updated_at: string
+          mensagem_count: number
+        }[]
       }
     }
     Enums: {
