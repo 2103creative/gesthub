@@ -1,3 +1,4 @@
+
 import type { NotaFiscal } from "../types/NotaFiscal";
 import { NotasFiscaisCommandService } from "./notasFiscaisCommand";
 import { toast } from "sonner";
@@ -33,5 +34,11 @@ export const NotasFiscaisMensagemService = {
       console.error('Erro ao reenviar mensagem:', error);
       toast.error("Erro ao reenviar mensagem");
     }
+  },
+  
+  // Generate WhatsApp URL without sending
+  generateWhatsAppUrl(nota: NotaFiscal): string {
+    const mensagem = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
+    return `https://wa.me/${nota.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
   }
 };

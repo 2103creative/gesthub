@@ -10,10 +10,13 @@ import { NotasList } from '../components/notas/NotasList';
 import { NotasService } from "../services/notasService";
 import { useNotasFiscais } from '../hooks/useNotasFiscais';
 import { NotaFiscal } from '../types/NotaFiscal';
+import { ConfirmSendDialog } from '../components/notas/ConfirmSendDialog';
 
 const NotasControl = () => {
   const navigate = useNavigate();
   const [atualizandoStatus, setAtualizandoStatus] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedNota, setSelectedNota] = useState<NotaFiscal | null>(null);
   
   // Buscar notas do Supabase
   const { data: notas = [], isLoading, error, refetch } = useQuery({
@@ -62,6 +65,11 @@ const NotasControl = () => {
   };
 
   const handleReenviarMensagem = async (nota: NotaFiscal) => {
+    setSelectedNota(nota);
+    setDialogOpen(true);
+  };
+
+  const handleConfirmSend = async (nota: NotaFiscal) => {
     try {
       await NotasService.reenviarMensagem(nota);
       refetch();
@@ -120,6 +128,13 @@ const NotasControl = () => {
       <footer className="w-full py-3 text-xs text-eink-gray text-center uppercase">
         © 2103 CREATIVE - 2025
       </footer>
+
+      <ConfirmSendDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        nota={selectedNota}
+        onConfirm={handleConfirmSend}
+      />
     </div>
   );
 };
