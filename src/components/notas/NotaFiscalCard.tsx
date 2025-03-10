@@ -8,6 +8,7 @@ interface NotaFiscalCardProps {
   getStatusMessage: (status: string, dataPrimeiraMensagem?: Date | string) => string;
   getStatusStyle: (status: string, dataPrimeiraMensagem?: Date | string) => string;
   onMarcarRetirado?: (id: string) => void;
+  onReenviarMensagem?: (nota: NotaFiscal) => void;
 }
 
 export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
@@ -16,8 +17,9 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   getStatusMessage,
   getStatusStyle,
   onMarcarRetirado,
+  onReenviarMensagem,
 }) => {
-  // Calculate message count based on dates
+  // Calculate message count based on dates and client name
   const calculaMensagens = () => {
     if (!nota.dataEnvioMensagem) return "0x";
     if (!nota.primeira_mensagem) return "1x";
@@ -26,7 +28,12 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
     const dataPrimeira = new Date(nota.primeira_mensagem);
     
     // If dates are the same, it's the first message
-    if (dataEnvio.toDateString() === dataPrimeira.toDateString()) return "1x";
+    if (dataEnvio.toDateString() === dataPrimeira.toDateString() && !nota.mensagem_count) return "1x";
+    
+    // If we have a count from the backend, use it
+    if (nota.mensagem_count && nota.mensagem_count > 0) {
+      return `${nota.mensagem_count}x`;
+    }
     
     // Calculate difference in days and divide by 2 (assuming messages are sent every 2 days on average)
     // Add 1 for the first message
@@ -46,14 +53,24 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
               <p className="text-eink-gray text-xs uppercase font-quicksand">Razão Social</p>
               <p className="font-medium text-sm uppercase truncate font-quicksand">{nota.razaoSocial}</p>
             </div>
-            {onMarcarRetirado && nota.id && (
-              <button
-                onClick={() => onMarcarRetirado(nota.id!)}
-                className="h-7 px-2 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
-              >
-                Retirado
-              </button>
-            )}
+            <div className="flex gap-1">
+              {onReenviarMensagem && (
+                <button
+                  onClick={() => onReenviarMensagem(nota)}
+                  className="h-7 px-2 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                >
+                  Reenviar
+                </button>
+              )}
+              {onMarcarRetirado && nota.id && (
+                <button
+                  onClick={() => onMarcarRetirado(nota.id!)}
+                  className="h-7 px-2 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                >
+                  Retirado
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2">

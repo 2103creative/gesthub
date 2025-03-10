@@ -9,6 +9,7 @@ import { NotasActionButtons } from '../components/notas/NotasActionButtons';
 import { NotasList } from '../components/notas/NotasList';
 import { NotasService } from "../services/notasService";
 import { useNotasFiscais } from '../hooks/useNotasFiscais';
+import { NotaFiscal } from '../types/NotaFiscal';
 
 const NotasControl = () => {
   const navigate = useNavigate();
@@ -60,6 +61,15 @@ const NotasControl = () => {
     }
   };
 
+  const handleReenviarMensagem = async (nota: NotaFiscal) => {
+    try {
+      await NotasService.reenviarMensagem(nota);
+      refetch();
+    } catch (error) {
+      console.error("Erro ao reenviar mensagem:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow">
@@ -102,6 +112,7 @@ const NotasControl = () => {
             activeTab={activeTab}
             isLoading={isLoading}
             onMarcarRetirado={handleMarcarRetirado}
+            onReenviarMensagem={activeTab === 'pendentes' ? handleReenviarMensagem : undefined}
           />
         </div>
       </div>

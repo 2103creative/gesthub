@@ -8,14 +8,16 @@ interface NotasListProps {
   notas: NotaFiscal[];
   activeTab: 'pendentes' | 'retirados';
   isLoading: boolean;
-  onMarcarRetirado: (id: string) => void;
+  onMarcarRetirado?: (id: string) => void;
+  onReenviarMensagem?: (nota: NotaFiscal) => void;
 }
 
 export const NotasList: React.FC<NotasListProps> = ({
   notas,
   activeTab,
   isLoading,
-  onMarcarRetirado
+  onMarcarRetirado,
+  onReenviarMensagem
 }) => {
   if (isLoading) {
     return (
@@ -42,7 +44,8 @@ export const NotasList: React.FC<NotasListProps> = ({
             formatarData={formatarData}
             getStatusMessage={getStatusMessage}
             getStatusStyle={getStatusStyle}
-            onMarcarRetirado={activeTab === 'pendentes' ? onMarcarRetirado : undefined}
+            onMarcarRetirado={onMarcarRetirado}
+            onReenviarMensagem={onReenviarMensagem}
           />
         </div>
       ))}

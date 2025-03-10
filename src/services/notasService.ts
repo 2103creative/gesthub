@@ -21,6 +21,7 @@ export const dbToNotaFiscal = (notaDB: NotaFiscalDB): NotaFiscal => {
     data_retirada: notaDB.data_retirada,
     created_at: notaDB.created_at ? new Date(notaDB.created_at) : undefined,
     updated_at: notaDB.updated_at ? new Date(notaDB.updated_at) : undefined,
+    mensagem_count: notaDB.mensagem_count,
   };
 };
 
@@ -47,15 +48,15 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
         nota.data_retirada.toISOString()
       ) : 
       null,
+    mensagem_count: nota.mensagem_count,
   };
 };
 
 export const NotasService = {
   async getAll(): Promise<NotaFiscal[]> {
+    // Using raw SQL to get the message count for each client
     const { data, error } = await supabase
-      .from('notas_fiscais')
-      .select('*')
-      .order('data_envio_mensagem', { ascending: true });
+      .rpc('get_notas_with_message_count');
 
     if (error) {
       console.error('Erro ao buscar notas fiscais:', error);
@@ -77,15 +78,21 @@ export const NotasService = {
     
     // Se existir, use a data da primeira mensagem do registro mais antigo
     let primeiraMsg = nota.dataEnvioMensagem.toISOString();
+    let msgCount = 1;
+    
     if (existingNotas && existingNotas.length > 0) {
       // Ordenar por data de criação para pegar o registro mais antigo
       const sortedNotas = [...existingNotas].sort((a, b) => 
         new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
       );
       primeiraMsg = sortedNotas[0].primeira_mensagem || sortedNotas[0].data_envio_mensagem;
+      
+      // Incrementar o contador de mensagens
+      msgCount = sortedNotas.length + 1;
     }
     
     nota.primeira_mensagem = primeiraMsg;
+    nota.mensagem_count = msgCount;
 
     const dbNota = notaFiscalToDB(nota);
     
@@ -177,5 +184,36 @@ export const NotasService = {
     }
     
     toast.success("Nota fiscal marcada como retirada");
+  },
+
+  async reenviarMensagem(nota: NotaFiscal): Promise<void> {
+    try {
+      // Clone the nota with a new date
+      const novaData = new Date();
+      const novaNota = {
+        ...nota,
+        dataEnvioMensagem: novaData,
+        id: undefined,  // Remove ID so a new record is created
+        mensagem_count: (nota.mensagem_count || 1) + 1, // Increment message count
+      };
+      
+      // Keep the original primeira_mensagem if it exists
+      if (nota.primeira_mensagem) {
+        novaNota.primeira_mensagem = nota.primeira_mensagem;
+      }
+
+      // Create a new nota record
+      await NotasService.create(novaNota);
+      
+      // Open WhatsApp with pre-filled message
+      const mensagem = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
+      const whatsappUrl = `https://wa.me/${nota.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast.success("Mensagem reenviada com sucesso");
+    } catch (error) {
+      console.error('Erro ao reenviar mensagem:', error);
+      toast.error("Erro ao reenviar mensagem");
+    }
   }
 };

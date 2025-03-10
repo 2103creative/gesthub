@@ -13,4 +13,5 @@ export interface NotaFiscal {
   data_retirada?: string | Date;
   created_at?: Date;
   updated_at?: Date;
+  mensagem_count?: number; // Count of messages sent to this client
 }
