@@ -57,7 +57,7 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
               {onReenviarMensagem && (
                 <button
                   onClick={() => onReenviarMensagem(nota)}
-                  className="h-7 px-2 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
                 >
                   Reenviar
                 </button>
@@ -65,7 +65,7 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
               {onMarcarRetirado && nota.id && (
                 <button
                   onClick={() => onMarcarRetirado(nota.id!)}
-                  className="h-7 px-2 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
                 >
                   Retirado
                 </button>

@@ -25,7 +25,8 @@ export const NotasFiscaisQueryService = {
       primeira_mensagem: item.primeira_mensagem || item.data_envio_mensagem,
       contato: item.contato,
       telefone: item.telefone,
-      status: item.status as NotaFiscal['status'], // Cast to ensure correct type
+      // Fix the type error by casting to the specific union type
+      status: item.status as "pendente" | "atrasado" | "alerta-verde" | "alerta-amarelo" | "alerta-vermelho",
       retirado: item.retirado || false,
       data_retirada: item.data_retirada,
       created_at: item.created_at ? new Date(item.created_at) : undefined,
