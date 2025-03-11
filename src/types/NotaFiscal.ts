@@ -14,4 +14,5 @@ export interface NotaFiscal {
   created_at?: Date;
   updated_at?: Date;
   mensagem_count?: number; // Count of messages sent to this client
+  mensagem?: string; // Message or observation for this nota fiscal
 }

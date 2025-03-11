@@ -78,6 +78,17 @@ const NotasControl = () => {
     }
   };
 
+  const handleSaveMensagem = async (nota: NotaFiscal, mensagem: string) => {
+    try {
+      if (nota.id) {
+        await NotasService.updateMensagem(nota.id, mensagem);
+        refetch();
+      }
+    } catch (error) {
+      console.error("Erro ao salvar observação:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-eink-white text-eink-black animate-fadeIn">
       <div className="flex-grow">
@@ -90,7 +101,7 @@ const NotasControl = () => {
           </button>
 
           <div className="flex flex-col gap-4 mb-4">
-            <h1 className="text-lg md:text-xl font-light uppercase">Controle de Notas</h1>
+            <h1 className="text-lg md:text-xl font-light uppercase">Controle de Notas Fiscais</h1>
             
             <div className="flex flex-col w-full gap-3">
               <NotasTabs activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -121,6 +132,7 @@ const NotasControl = () => {
             isLoading={isLoading}
             onMarcarRetirado={handleMarcarRetirado}
             onReenviarMensagem={activeTab === 'pendentes' ? handleReenviarMensagem : undefined}
+            onSaveMensagem={handleSaveMensagem}
           />
         </div>
       </div>

@@ -23,5 +23,6 @@ export const NotasService = {
   marcarRetirado: NotasFiscaisStatusService.marcarRetirado,
   
   // Message operations
-  reenviarMensagem: NotasFiscaisMensagemService.reenviarMensagem
+  reenviarMensagem: NotasFiscaisMensagemService.reenviarMensagem,
+  updateMensagem: NotasFiscaisMensagemService.updateMensagem
 };

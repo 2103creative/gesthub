@@ -2,6 +2,7 @@
 import type { NotaFiscal } from "../types/NotaFiscal";
 import { NotasFiscaisCommandService } from "./notasFiscaisCommand";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // This service handles message operations for notas fiscais
 export const NotasFiscaisMensagemService = {
@@ -40,5 +41,23 @@ export const NotasFiscaisMensagemService = {
   generateWhatsAppUrl(nota: NotaFiscal): string {
     const mensagem = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
     return `https://wa.me/${nota.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
+  },
+
+  // Add or update a message for a nota fiscal
+  async updateMensagem(id: string, mensagem: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('notas_fiscais')
+        .update({ mensagem })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success("Observação salva com sucesso");
+    } catch (error) {
+      console.error('Erro ao salvar observação:', error);
+      toast.error("Erro ao salvar observação");
+      throw error;
+    }
   }
 };

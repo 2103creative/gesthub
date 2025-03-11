@@ -1,6 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Pen } from 'lucide-react';
 import type { NotaFiscal } from '../../types/NotaFiscal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface NotaFiscalCardProps {
   nota: NotaFiscal;
@@ -9,6 +18,7 @@ interface NotaFiscalCardProps {
   getStatusStyle: (status: string, dataPrimeiraMensagem?: Date | string) => string;
   onMarcarRetirado?: (id: string) => void;
   onReenviarMensagem?: (nota: NotaFiscal) => void;
+  onSaveMensagem?: (nota: NotaFiscal, mensagem: string) => void;
 }
 
 export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
@@ -18,7 +28,11 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   getStatusStyle,
   onMarcarRetirado,
   onReenviarMensagem,
+  onSaveMensagem,
 }) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [mensagem, setMensagem] = useState(nota.mensagem || '');
+
   // Calculate message count based on dates and client name
   const calculaMensagens = () => {
     if (!nota.dataEnvioMensagem) return "0x";
@@ -42,6 +56,13 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
     const messageCount = Math.ceil(diffDays / 2) + 1;
     
     return `${messageCount}x`;
+  };
+
+  const handleSaveMensagem = () => {
+    if (onSaveMensagem) {
+      onSaveMensagem(nota, mensagem);
+    }
+    setEditDialogOpen(false);
   };
 
   return (
@@ -110,6 +131,21 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
           )}
         </div>
 
+        {/* Mensagem box */}
+        <div className="mt-2 border border-eink-lightGray rounded-md relative">
+          <div className="p-2 h-24 overflow-y-auto text-xs font-quicksand">
+            {nota.mensagem || 'Sem observações'}
+          </div>
+          {onSaveMensagem && (
+            <button 
+              onClick={() => setEditDialogOpen(true)}
+              className="absolute top-1 right-1 p-1 text-eink-gray hover:text-eink-black"
+            >
+              <Pen size={16} />
+            </button>
+          )}
+        </div>
+
         {!nota.retirado && nota.status !== 'pendente' && (
           <div className={`mt-2 p-2 rounded-md uppercase text-xs font-medium font-quicksand ${getStatusStyle(nota.status)}`}>
             {getStatusMessage(nota.status)}
@@ -128,6 +164,33 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Edit Message Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adicionar Observação</DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <textarea
+              value={mensagem}
+              onChange={(e) => setMensagem(e.target.value)}
+              className="w-full h-32 p-2 border border-eink-lightGray rounded-md text-sm focus:outline-none"
+              placeholder="Digite uma observação para esta nota fiscal..."
+            />
+          </div>
+
+          <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveMensagem}>
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

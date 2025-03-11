@@ -10,6 +10,7 @@ interface NotasListProps {
   isLoading: boolean;
   onMarcarRetirado?: (id: string) => void;
   onReenviarMensagem?: (nota: NotaFiscal) => void;
+  onSaveMensagem?: (nota: NotaFiscal, mensagem: string) => void;
 }
 
 export const NotasList: React.FC<NotasListProps> = ({
@@ -17,7 +18,8 @@ export const NotasList: React.FC<NotasListProps> = ({
   activeTab,
   isLoading,
   onMarcarRetirado,
-  onReenviarMensagem
+  onReenviarMensagem,
+  onSaveMensagem
 }) => {
   if (isLoading) {
     return (
@@ -46,6 +48,7 @@ export const NotasList: React.FC<NotasListProps> = ({
             getStatusStyle={getStatusStyle}
             onMarcarRetirado={onMarcarRetirado}
             onReenviarMensagem={onReenviarMensagem}
+            onSaveMensagem={onSaveMensagem}
           />
         </div>
       ))}

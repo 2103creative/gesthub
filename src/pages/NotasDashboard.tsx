@@ -38,7 +38,7 @@ const NotasDashboard = () => {
       <div className="flex-grow">
         <div className="w-full max-w-7xl mx-auto px-3 py-4 md:py-8">
           <div className="flex flex-col gap-4 mb-4">
-            <h1 className="text-lg md:text-xl font-light uppercase">Dashboard de Notas</h1>
+            <h1 className="text-lg md:text-xl font-light uppercase">Controle de Notas Fiscais</h1>
             
             <div className="flex flex-col w-full gap-3">
               <NotasTabs activeTab={activeTab} setActiveTab={setActiveTab} />
