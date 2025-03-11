@@ -1,3 +1,4 @@
+
 import type { NotaFiscal } from "../types/NotaFiscal";
 import { NotasFiscaisCommandService } from "./notasFiscaisCommand";
 import { toast } from "sonner";
@@ -47,10 +48,14 @@ export const NotasFiscaisMensagemService = {
     try {
       const { error } = await supabase
         .from('notas_fiscais')
-        .update({ mensagem })
-        .eq('id', id);
+        .update({ mensagem: mensagem })
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao salvar observação:', error);
+        throw error;
+      }
       
       toast.success("Observação salva com sucesso");
     } catch (error) {

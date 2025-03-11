@@ -96,7 +96,8 @@ const NotasDashboard = () => {
             activeTab={activeTab}
             isLoading={isLoading}
             onMarcarRetirado={undefined} // Remove ability to mark as retrieved
-            onSaveMensagem={undefined} // Disable editing in dashboard view
+            onReenviarMensagem={undefined} // Disable message resending in dashboard
+            onSaveMensagem={undefined} // Read-only mode for messages
           />
         </div>
       </div>
