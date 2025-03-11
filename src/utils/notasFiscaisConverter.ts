@@ -21,14 +21,13 @@ export const dbToNotaFiscal = (notaDB: NotaFiscalDB): NotaFiscal => {
     created_at: notaDB.created_at ? new Date(notaDB.created_at) : undefined,
     updated_at: notaDB.updated_at ? new Date(notaDB.updated_at) : undefined,
     mensagem_count: notaDB.mensagem_count ? Number(notaDB.mensagem_count) : undefined,
-    mensagem: (notaDB as any).mensagem, // Use type assertion as the database types might not be updated
+    mensagem: notaDB.mensagem,
   };
 };
 
 // Converter do formato do frontend para o formato do banco
 export const notaFiscalToDB = (nota: NotaFiscal) => {
-  // Convert to any type to allow for the mensagem property
-  const dbNota: any = {
+  return {
     razao_social: nota.razaoSocial,
     numero_nota: nota.numeroNota,
     data_emissao: nota.dataEmissao.toISOString(),
@@ -50,12 +49,6 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
       ) : 
       null,
     mensagem_count: nota.mensagem_count,
+    mensagem: nota.mensagem,
   };
-
-  // Add mensagem if it exists
-  if (nota.mensagem !== undefined) {
-    dbNota.mensagem = nota.mensagem;
-  }
-
-  return dbNota;
 };
