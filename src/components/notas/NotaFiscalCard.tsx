@@ -59,7 +59,8 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   };
 
   const handleSaveMensagem = () => {
-    if (onSaveMensagem) {
+    if (onSaveMensagem && nota.id) {
+      console.log('Saving message:', mensagem, 'for nota:', nota.id);
       onSaveMensagem(nota, mensagem);
     }
     setEditDialogOpen(false);
@@ -134,7 +135,7 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
         {/* Mensagem box */}
         <div className="mt-2 border border-eink-lightGray rounded-md relative">
           <div className="p-2 h-24 overflow-y-auto text-xs font-quicksand">
-            {nota.mensagem || 'Sem observações'}
+            {nota.mensagem ? nota.mensagem : 'Sem observações'}
           </div>
           {onSaveMensagem && (
             <button 

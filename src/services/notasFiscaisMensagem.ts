@@ -1,4 +1,3 @@
-
 import type { NotaFiscal } from "../types/NotaFiscal";
 import { NotasFiscaisCommandService } from "./notasFiscaisCommand";
 import { toast } from "sonner";
@@ -46,14 +45,16 @@ export const NotasFiscaisMensagemService = {
   // Add or update a message for a nota fiscal
   async updateMensagem(id: string, mensagem: string): Promise<void> {
     try {
+      console.log('Salvando observação:', id, mensagem);
+      
       const { error } = await supabase
         .from('notas_fiscais')
-        .update({ mensagem: mensagem })
-        .eq('id', id)
-        .select();
+        .update({ mensagem })
+        .eq('id', id);
 
       if (error) {
         console.error('Erro ao salvar observação:', error);
+        toast.error("Erro ao salvar observação");
         throw error;
       }
       
