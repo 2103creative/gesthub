@@ -17,6 +17,7 @@ export type Database = {
           data_envio_mensagem: string
           data_retirada: string | null
           id: string
+          mensagem: string | null
           mensagem_count: number | null
           numero_nota: string
           primeira_mensagem: string | null
@@ -33,6 +34,7 @@ export type Database = {
           data_envio_mensagem: string
           data_retirada?: string | null
           id?: string
+          mensagem?: string | null
           mensagem_count?: number | null
           numero_nota: string
           primeira_mensagem?: string | null
@@ -49,6 +51,7 @@ export type Database = {
           data_envio_mensagem?: string
           data_retirada?: string | null
           id?: string
+          mensagem?: string | null
           mensagem_count?: number | null
           numero_nota?: string
           primeira_mensagem?: string | null
