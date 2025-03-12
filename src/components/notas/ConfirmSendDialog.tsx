@@ -20,7 +20,17 @@ export function ConfirmSendDialog({ open, onOpenChange, nota, onConfirm }: Confi
     onOpenChange(false);
   };
 
-  const previewMessage = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
+  const previewMessage = `Olá, ${nota.contato}, tudo bem?
+
+Me chamo Lenoir e falo da Gplásticos.
+Estou entrando em contato para lembrar que a sua mercadoria está pronta para coleta.
+
+- Nota Fiscal Nº ${nota.numeroNota}
+- Horários para coleta: Segunda a Sexta, das 08h às 18h
+- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150
+- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7
+
+Qualquer dúvida, fico à disposição.`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,7 +47,7 @@ export function ConfirmSendDialog({ open, onOpenChange, nota, onConfirm }: Confi
         
         <div className="py-4">
           <h3 className="mb-2 text-sm font-medium">Prévia da mensagem:</h3>
-          <div className="bg-muted p-3 rounded-md text-sm">
+          <div className="bg-muted p-3 rounded-md text-sm whitespace-pre-line">
             {previewMessage}
           </div>
           

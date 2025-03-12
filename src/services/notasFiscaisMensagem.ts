@@ -35,8 +35,9 @@ export const NotasFiscaisMensagemService = {
       // Create a new nota record
       await NotasFiscaisCommandService.create(novaNota);
       
-      // Open WhatsApp with pre-filled message
-      const mensagem = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
+      // Open WhatsApp with new formatted message for resends
+      const mensagem = `Olá, ${nota.contato}, tudo bem?\n\nMe chamo Lenoir e falo da Gplásticos.\nEstou entrando em contato para lembrar que a sua mercadoria está pronta para coleta.\n\n- Nota Fiscal Nº ${nota.numeroNota}\n- Horários para coleta: Segunda a Sexta, das 08h às 18h\n- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7\n\nQualquer dúvida, fico à disposição.`;
+      
       const whatsappUrl = `https://wa.me/${nota.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
       window.open(whatsappUrl, '_blank');
       
@@ -49,7 +50,9 @@ export const NotasFiscaisMensagemService = {
   
   // Generate WhatsApp URL without sending
   generateWhatsAppUrl(nota: NotaFiscal): string {
-    const mensagem = `Olá ${nota.contato}, passando para lembrar que a Nota Fiscal ${nota.numeroNota} da ${nota.razaoSocial} está disponível para retirada.`;
+    // Using the same format for generating URLs without sending
+    const mensagem = `Olá, ${nota.contato}, tudo bem?\n\nMe chamo Lenoir e falo da Gplásticos.\nEstou entrando em contato para lembrar que a sua mercadoria está pronta para coleta.\n\n- Nota Fiscal Nº ${nota.numeroNota}\n- Horários para coleta: Segunda a Sexta, das 08h às 18h\n- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7\n\nQualquer dúvida, fico à disposição.`;
+    
     return `https://wa.me/${nota.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
   },
 

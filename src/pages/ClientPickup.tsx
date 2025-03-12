@@ -32,14 +32,7 @@ const ClientPickup = () => {
       setEnviando(true);
       
       const phone = formData.whatsapp.replace(/\D/g, '');
-      const message = `Olá, ${formData.contato}, tudo bem?\n\n` +
-        `Me chamo Lenoir e falo da Gplásticos.\n` +
-        `Estou entrando em contato para avisar que a sua mercadoria está pronta para coleta.\n\n` +
-        `- Nota Fiscal Nº ${formData.invoice}\n` +
-        `- Horários para coleta: Segunda a Sexta, das 08h às 18h\n` +
-        `- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n` +
-        `- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7\n\n` +
-        `Qualquer dúvida, fico à disposição.`;
+      const message = `Olá, ${formData.contato}, tudo bem?\n\nMe chamo Lenoir e falo da Gplásticos.\nEstou entrando em contato para avisar que a sua mercadoria está pronta para coleta.\n\n- Nota Fiscal Nº ${formData.invoice}\n- Horários para coleta: Segunda a Sexta, das 08h às 18h\n- Endereço: R. Demétrio Ângelo Tiburi, 1716 - Bela Vista, Caxias do Sul - RS, 95072-150\n- Google Maps: https://maps.app.goo.gl/3AnfMasiaeyn7jmj7\n\nQualquer dúvida, fico à disposição.`;
 
       // Modificando para abrir apenas WhatsApp Web
       const url = `https://web.whatsapp.com/send?phone=55${phone}&text=${encodeURIComponent(message)}`;
