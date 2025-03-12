@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Pen } from 'lucide-react';
 import type { NotaFiscal } from '../../types/NotaFiscal';
@@ -33,7 +32,6 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [mensagem, setMensagem] = useState(nota.mensagem || '');
 
-  // Calculate message count based on dates and client name
   const calculaMensagens = () => {
     if (!nota.dataEnvioMensagem) return "0x";
     if (!nota.primeira_mensagem) return "1x";
@@ -41,16 +39,12 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
     const dataEnvio = new Date(nota.dataEnvioMensagem);
     const dataPrimeira = new Date(nota.primeira_mensagem);
     
-    // If dates are the same, it's the first message
     if (dataEnvio.toDateString() === dataPrimeira.toDateString() && !nota.mensagem_count) return "1x";
     
-    // If we have a count from the backend, use it
     if (nota.mensagem_count && nota.mensagem_count > 0) {
       return `${nota.mensagem_count}x`;
     }
     
-    // Calculate difference in days and divide by 2 (assuming messages are sent every 2 days on average)
-    // Add 1 for the first message
     const diffTime = Math.abs(dataEnvio.getTime() - dataPrimeira.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const messageCount = Math.ceil(diffDays / 2) + 1;
@@ -70,16 +64,16 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
     <div className="relative w-full bg-eink-white rounded-lg border border-eink-lightGray shadow-sm transition-all duration-300 hover:shadow-md">
       <div className="p-2.5 md:p-3">
         <div className="space-y-1.5 md:space-y-2">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
               <p className="text-eink-gray text-xs uppercase font-quicksand">Razão Social</p>
               <p className="font-medium text-sm uppercase truncate font-quicksand">{nota.razaoSocial}</p>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-shrink-0">
               {onReenviarMensagem && (
                 <button
                   onClick={() => onReenviarMensagem(nota)}
-                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors whitespace-nowrap"
                 >
                   Reenviar
                 </button>
@@ -87,7 +81,7 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
               {onMarcarRetirado && nota.id && (
                 <button
                   onClick={() => onMarcarRetirado(nota.id!)}
-                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors"
+                  className="h-6 px-1.5 text-xs font-medium uppercase bg-eink-black text-white rounded hover:bg-eink-gray transition-colors whitespace-nowrap"
                 >
                   Retirado
                 </button>
@@ -132,9 +126,8 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
           )}
         </div>
 
-        {/* Mensagem box */}
         <div className="mt-2 border border-eink-lightGray rounded-md relative">
-          <div className="p-2 h-24 overflow-y-auto text-xs font-quicksand">
+          <div className="p-2 h-24 overflow-y-auto text-xs font-quicksand break-words">
             {nota.mensagem ? nota.mensagem : 'Sem observações'}
           </div>
           {onSaveMensagem && (
@@ -166,7 +159,6 @@ export const NotaFiscalCard: React.FC<NotaFiscalCardProps> = ({
         )}
       </div>
 
-      {/* Edit Message Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
