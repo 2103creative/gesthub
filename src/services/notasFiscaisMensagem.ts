@@ -17,10 +17,20 @@ export const NotasFiscaisMensagemService = {
         mensagem_count: (nota.mensagem_count || 1) + 1, // Increment message count
       };
       
-      // Keep the original primeira_mensagem if it exists
+      // IMPORTANT: Always preserve the original primeira_mensagem
+      // This ensures day counting starts from the first message
       if (nota.primeira_mensagem) {
-        novaNota.primeira_mensagem = nota.primeira_mensagem;
+        // Ensure we're passing the first message date string as is
+        novaNota.primeira_mensagem = typeof nota.primeira_mensagem === 'string' 
+          ? nota.primeira_mensagem 
+          : nota.primeira_mensagem.toISOString();
+      } else {
+        // If there's no primeira_mensagem (shouldn't happen), use the original dataEnvioMensagem
+        // This preserves the original date for count purposes
+        novaNota.primeira_mensagem = nota.dataEnvioMensagem.toISOString();
       }
+
+      console.log('Reenviando mensagem com primeira_mensagem:', novaNota.primeira_mensagem);
 
       // Create a new nota record
       await NotasFiscaisCommandService.create(novaNota);

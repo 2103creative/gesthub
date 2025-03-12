@@ -15,23 +15,36 @@ export const NotasFiscaisCommandService = {
       .eq('numero_nota', nota.numeroNota)
       .eq('retirado', false);
     
-    // Se existir, use a data da primeira mensagem do registro mais antigo
-    let primeiraMsg = nota.dataEnvioMensagem.toISOString();
-    let msgCount = 1;
+    // Se existir e não temos uma primeira_mensagem definida,
+    // use a data da primeira mensagem do registro mais antigo
+    let primeiraMsg = nota.primeira_mensagem || nota.dataEnvioMensagem.toISOString();
+    let msgCount = nota.mensagem_count || 1;
     
-    if (existingNotas && existingNotas.length > 0) {
+    if (!nota.primeira_mensagem && existingNotas && existingNotas.length > 0) {
       // Ordenar por data de criação para pegar o registro mais antigo
       const sortedNotas = [...existingNotas].sort((a, b) => 
         new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
       );
+      
+      // Usar a primeira mensagem do registro mais antigo
       primeiraMsg = sortedNotas[0].primeira_mensagem || sortedNotas[0].data_envio_mensagem;
       
-      // Incrementar o contador de mensagens
-      msgCount = sortedNotas.length + 1;
+      // Se não estamos reutilizando uma contagem existente, incrementar
+      if (!nota.mensagem_count) {
+        msgCount = sortedNotas.length + 1;
+      }
     }
     
-    nota.primeira_mensagem = primeiraMsg;
+    // Apenas atualizar se não foi definido explicitamente
+    if (!nota.primeira_mensagem) {
+      nota.primeira_mensagem = primeiraMsg;
+    }
+    
+    // Respeitar a contagem de mensagens passada ou usar a calculada
     nota.mensagem_count = msgCount;
+
+    console.log('Criando nota com primeira_mensagem:', nota.primeira_mensagem);
+    console.log('Contagem de mensagens:', nota.mensagem_count);
 
     const dbNota = notaFiscalToDB(nota);
     
