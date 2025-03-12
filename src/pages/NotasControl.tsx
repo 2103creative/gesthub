@@ -81,9 +81,17 @@ const NotasControl = () => {
   const handleSaveMensagem = async (nota: NotaFiscal, mensagem: string) => {
     try {
       if (nota.id) {
-        console.log('NotasControl - Saving message:', mensagem, 'for nota:', nota.id);
+        console.log('NotasControl - Saving message:', mensagem, 'for nota ID:', nota.id);
+        
+        // Explicitly call the service method with both parameters
         await NotasService.updateMensagem(nota.id, mensagem);
+        
+        // Force a refresh to get the updated data
+        console.log('Refetching data after saving message');
         await refetch();
+        
+        // Log the updated notes to verify the message was saved
+        console.log('Data refetched successfully');
       }
     } catch (error) {
       console.error("Erro ao salvar observação:", error);

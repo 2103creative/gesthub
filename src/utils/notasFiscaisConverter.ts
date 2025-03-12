@@ -21,7 +21,7 @@ export const dbToNotaFiscal = (notaDB: NotaFiscalDB): NotaFiscal => {
     created_at: notaDB.created_at ? new Date(notaDB.created_at) : undefined,
     updated_at: notaDB.updated_at ? new Date(notaDB.updated_at) : undefined,
     mensagem_count: notaDB.mensagem_count ? Number(notaDB.mensagem_count) : undefined,
-    mensagem: notaDB.mensagem || '',
+    mensagem: notaDB.mensagem || '', // Always provide a string value, even if empty
   };
 };
 
@@ -49,6 +49,6 @@ export const notaFiscalToDB = (nota: NotaFiscal) => {
       ) : 
       null,
     mensagem_count: nota.mensagem_count,
-    mensagem: nota.mensagem || '',
+    mensagem: nota.mensagem || '', // Ensure mensagem is never null, use empty string instead
   };
 };

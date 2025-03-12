@@ -32,6 +32,7 @@ export const NotasFiscaisQueryService = {
       created_at: item.created_at ? new Date(item.created_at) : undefined,
       updated_at: item.updated_at ? new Date(item.updated_at) : undefined,
       mensagem_count: Number(item.mensagem_count) || 1,
+      mensagem: item.mensagem || '', // Ensure we always have a string, even if empty
     })) : [];
   }
 };
