@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Pen } from 'lucide-react';
 import type { NotaFiscal } from '../../types/NotaFiscal';
