@@ -12,9 +12,39 @@ export function useNotasFiscais(notas: NotaFiscal[] = []) {
     let notasFiltradas = [...notas];
 
     // Filtrar por retirado/pendente
-    notasFiltradas = notasFiltradas.filter(nota => 
-      activeTab === 'pendentes' ? !nota.retirado : nota.retirado
-    );
+    notasFiltradas = notasFiltradas.filter(nota => {
+      if (activeTab === 'pendentes') {
+        return !nota.retirado;
+      } else {
+        // Para aba "retirados", verificar se foi retirado e a data
+        if (!nota.retirado) return false;
+        
+        // Se tem data_retirada, verificar se está dentro dos 7 dias
+        if (nota.data_retirada) {
+          const dataRetirada = new Date(nota.data_retirada);
+          const hoje = new Date();
+          const diffTime = Math.abs(hoje.getTime() - dataRetirada.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          // Filtrar apenas os que foram retirados há 7 dias ou menos
+          return diffDays <= 7;
+        }
+        
+        // Se não tem data_retirada, usa updated_at como alternativa
+        if (nota.updated_at) {
+          const dataRetirada = new Date(nota.updated_at);
+          const hoje = new Date();
+          const diffTime = Math.abs(hoje.getTime() - dataRetirada.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          // Filtrar apenas os que foram retirados há 7 dias ou menos
+          return diffDays <= 7;
+        }
+        
+        // Se não tem nenhuma data disponível, mostra por padrão
+        return true;
+      }
+    });
 
     if (filtroStatus !== 'todos' && activeTab === 'pendentes') {
       notasFiltradas = notasFiltradas.filter(nota => nota.status === filtroStatus);

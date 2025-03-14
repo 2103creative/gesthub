@@ -38,6 +38,8 @@ pool.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME} CHARACTER SET u
       contato VARCHAR(255) NOT NULL,
       telefone VARCHAR(20) NOT NULL,
       status VARCHAR(20) NOT NULL,
+      retirado BOOLEAN DEFAULT FALSE,
+      data_retirada DATETIME,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -49,6 +51,30 @@ pool.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME} CHARACTER SET u
     console.log('Banco de dados e tabela verificados com sucesso!');
   });
 });
+
+// Limpar registros retirados com mais de 7 dias
+const limparRetiradosAntigos = () => {
+  const query = `
+    DELETE FROM notas_fiscais 
+    WHERE retirado = true 
+    AND data_retirada IS NOT NULL 
+    AND data_retirada < DATE_SUB(NOW(), INTERVAL 7 DAY)
+  `;
+  
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error('Erro ao limpar registros antigos:', err);
+      return;
+    }
+    
+    if (result.affectedRows > 0) {
+      console.log(`${result.affectedRows} registros antigos foram removidos.`);
+    }
+  });
+};
+
+// Executar limpeza diariamente
+setInterval(limparRetiradosAntigos, 24 * 60 * 60 * 1000);
 
 // Rotas
 app.get('/notas', async (req, res) => {
@@ -104,4 +130,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log(`Banco de dados configurado em: ${process.env.DB_DATA_DIR}`);
+  
+  // Executar limpeza inicial
+  limparRetiradosAntigos();
 });
