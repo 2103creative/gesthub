@@ -3,6 +3,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -53,7 +54,8 @@ pool.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME} CHARACTER SET u
 });
 
 // Limpar registros retirados com mais de 7 dias
-const limparRetiradosAntigos = () => {
+const limparRetiradosAntigos = async () => {
+  // Limpar registros no MySQL
   const query = `
     DELETE FROM notas_fiscais 
     WHERE retirado = true 
@@ -63,18 +65,41 @@ const limparRetiradosAntigos = () => {
   
   pool.query(query, (err, result) => {
     if (err) {
-      console.error('Erro ao limpar registros antigos:', err);
+      console.error('Erro ao limpar registros antigos no MySQL:', err);
       return;
     }
     
     if (result.affectedRows > 0) {
-      console.log(`${result.affectedRows} registros antigos foram removidos.`);
+      console.log(`MySQL: ${result.affectedRows} registros antigos foram removidos.`);
+    } else {
+      console.log('MySQL: Nenhum registro antigo para remover.');
     }
   });
+  
+  // Limpar registros no Supabase
+  try {
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+      const response = await axios.post(
+        `${process.env.SUPABASE_URL}/rest/v1/rpc/cleanup_old_retrieved_notes`,
+        {},
+        {
+          headers: {
+            'apikey': process.env.SUPABASE_KEY,
+            'Authorization': `Bearer ${process.env.SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log('Supabase: Limpeza de registros antigos executada');
+    }
+  } catch (error) {
+    console.error('Erro ao limpar registros antigos no Supabase:', error.message);
+  }
 };
 
 // Executar limpeza diariamente
-setInterval(limparRetiradosAntigos, 24 * 60 * 60 * 1000);
+const INTERVALO_LIMPEZA = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
+setInterval(limparRetiradosAntigos, INTERVALO_LIMPEZA);
 
 // Rotas
 app.get('/notas', async (req, res) => {
@@ -122,6 +147,17 @@ app.delete('/notas/:id', async (req, res) => {
     res.json({ message: 'Nota fiscal deletada com sucesso' });
   } catch (error) {
     console.error('Erro ao deletar nota:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Rota para acionar manualmente a limpeza de notas antigas
+app.post('/limpar-notas-antigas', async (req, res) => {
+  try {
+    await limparRetiradosAntigos();
+    res.json({ message: 'Limpeza de notas antigas iniciada' });
+  } catch (error) {
+    console.error('Erro ao iniciar limpeza de notas antigas:', error);
     res.status(500).json({ error: error.message });
   }
 });

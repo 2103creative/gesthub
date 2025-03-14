@@ -72,6 +72,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_old_retrieved_notes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_notas_with_message_count: {
         Args: Record<PropertyKey, never>
         Returns: {
